@@ -1,7 +1,7 @@
 # Flight Booking System
 
 ## Description
-[Breve descrizione del tuo progetto di prenotazione voli]
+
 
 ## Table of Contents
 - [Installation](#installation)
@@ -23,7 +23,7 @@
 ```
 
 ## Usage
-[Istruzioni su come utilizzare l'applicazione]
+
 
 ## Features
 - [ ] User Authentication
@@ -31,11 +31,11 @@
 - [ ] Booking System
 - [ ] User Profile Management
 - [ ] Admin Dashboard
-- [Aggiungi altre funzionalità man mano che le sviluppi]
+
 
 ## Technologies Used
 - Django
-- [Altre tecnologie/librerie utilizzate]
+
 
 ## Project Structure
 ```
@@ -43,19 +43,19 @@
 ```
 
 ## API Documentation
-[Se il tuo progetto include API, documentale qui]
+
 
 ## Contributing
-[Istruzioni per chi volesse contribuire al progetto]
+
 
 ## Testing
-[Istruzioni su come eseguire i test]
+
 
 ## Deployment
-[Informazioni su come deployare l'applicazione]
+
 
 ## Roadmap
-- [Funzionalità future pianificate]
+
 - [Miglioramenti previsti]
 
 ## License
