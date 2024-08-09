@@ -39,7 +39,7 @@
 
 ## Project Structure
 ```
-[Struttura delle directory del progetto]
+
 ```
 
 ## API Documentation
@@ -59,7 +59,7 @@
 - [Miglioramenti previsti]
 
 ## License
-[Informazioni sulla licenza del progetto]
+
 
 ## Contact
-[Le tue informazioni di contatto o come gli altri possono raggiungerti per domande sul progetto]
+
