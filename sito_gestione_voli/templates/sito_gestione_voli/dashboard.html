@@ -1,0 +1,63 @@
+{% extends 'sito_gestione_voli/common.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        display: flex;
+        height: 100vh;
+    }
+
+    .flight-list {
+        width: 25%;
+        background-color: #f0f0f0;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+
+    .flight-list h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .flight-list table {
+        width: 100%;
+    }
+
+    .flight-list td {
+        font-size: 30px;
+        padding: 10px 0;
+        text-align: center;
+    }
+
+    .main-content {
+        flex-grow: 1;
+        padding: 20px;
+    }
+</style>
+<div class="dashboard-container">
+    <div class="flight-list">
+        <h2>Flight List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Flight Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flight in flights %}
+                <tr>
+                    <td>{{ flight.number }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="main-content">
+        <!-- Qui puoi aggiungere il contenuto principale della dashboard -->
+        <h2>Welcome to Your Dashboard</h2>
+        <p>Select a flight from the list to view details.</p>
+    </div>
+</div>
+{% endblock %}

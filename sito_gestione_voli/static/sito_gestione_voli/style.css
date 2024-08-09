@@ -1,0 +1,41 @@
+
+  .primaClasse {
+    background-image: url("prima_classe.png"); /*  */
+    background-repeat: no-repeat; 
+    background-attachment: scroll; 
+    background-position: center;
+    background-size: cover;
+    background-color: aliceblue;
+  }
+  .secondaClasse {
+    background-image: url("seconda_classe.png"); 
+    background-repeat: no-repeat; 
+    background-attachment: scroll; 
+    background-position: center;
+    background-size: cover;
+  }
+  .primaClasseOccupata {
+    background-image: url("prima_classe_occupata.png"); 
+    background-repeat: no-repeat; 
+    background-attachment: scroll; 
+    background-position: center;
+    background-size: cover;
+  }
+
+  .secondaClasseOccupata {
+    background-image: url("seconda_classe_occupato.png"); 
+    background-repeat: no-repeat; 
+    background-attachment: scroll; 
+    background-position: center;
+    background-size: cover;
+  }
+  .aereo {
+    background-image: url('AEREO.jpg');
+    background-color: aqua;
+    background-repeat: no-repeat; 
+    background-attachment: scroll; 
+    background-position: center;
+    background-size: cover;
+  }
+
+  /*  style="background-image: url('sfondo.gif'); background-repeat: no-repeat; background-attachment: fixed; background-size:cover;"  */

@@ -1,0 +1,355 @@
+{% extends 'sito_gestione_voli/common.html' %}
+{% load widget_tweaks %}
+{% load custom_filters %}
+{% block content %}
+<style>
+    .flights-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .flight-container {
+        display: flex;
+        flex-direction: column;
+        margin: 0.5rem;
+        border: 1px solid #ccc;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        box-sizing: border-box;
+        width: calc(100% - 1rem);
+        max-width: 600px;
+    }
+    .flight-summary {
+        padding: 1rem;
+        width: 100%;
+    }
+    .summary-item {
+        margin-bottom: 0.5rem;
+    }
+    .summary-item strong {
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+    .summary-item span {
+        display: block;
+        padding-left: 1rem;
+    }
+    .aircraft {
+        width: 100%;
+        max-width: 296px;
+        aspect-ratio: 1 / 4;
+        background-color: rgb(136, 136, 136);
+        border-radius: 20% / 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
+        margin: 0 auto 1rem;
+    }
+    .row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin: 2px 0;
+    }
+    .seat {
+        width: 24px;
+        height: 24px;
+        margin: 0 1px;
+        background-color: #ddd;
+        border: 1px solid #999;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 8px;
+        color: black;
+    }
+    .seat:hover {
+        background-color: #bbb;
+    }
+    .seat.selected {
+        background-color: #4CAF50;
+        border-color: #45a049;
+        color: white;
+    }
+    .seat.booked {
+        background-color: #FF0000;
+        cursor: not-allowed;
+    }
+    .aisle {
+        width: 8px;
+    }
+    
+    @media (min-width: 992px) {
+        .flight-container {
+            flex-direction: row;
+            width: calc(50% - 1rem);
+        }
+        .flight-summary {
+            width: 50%;
+        }
+        .aircraft {
+            width: 50%;
+            margin: 1rem;
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .flight-container {
+            width: calc(100% - 1rem);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .seat {
+            width: 20px;
+            height: 20px;
+            font-size: 7px;
+        }
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .button-container button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: rgb(46, 46, 46);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: color 0.3s;
+    }
+    
+    .button-container button {
+        transition: color 0.3s, background-color 0.3s
+    }
+
+    .button-container button:hover {
+        color: #ffd700;
+        background-color: #000000;
+        transition: color 0.3s, background-color 0.3s
+    }
+    
+    .warning-text {
+        font-size: 14px;
+        color: #ff9800;
+        text-align: center;
+        margin-top: 5px;
+    }
+</style>
+{% render_field humnas.humnas class="form-control" name='humnas' id="humnas" %} 
+<div class="button-container pt-3">
+    <button onclick="goBack()">Go back</button>
+    <div>
+        <button onclick="selectTheseSeats()">Select these seats</button>
+    </div>
+    <button onclick="chooseForMe()" data-humans="{{ humans }}">Choose for me</button>
+</div>
+<p class="warning-text">Warning: remaining seats on other flights will be selected randomly</p>
+
+<div class="container-fluid">
+    <div class="flights-wrapper">
+        {% for flight_data in chosen_flights %}
+        <div class="flight-container">
+            <div class="flight-summary">
+                <h3>Flight Summary {{ flight_data.id }}</h3>
+                <div class="summary-item">
+                    <strong>Departure:</strong>
+                    <span>{{ flight_data.departure }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Arrival:</strong>
+                    <span>{{ flight_data.arrival }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Departure Date:</strong>
+                    <span>{{ flight_data.departure_date }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Aircraft:</strong>
+                    <span>{{ flight_data.Aircraft }}</span>
+                </div>
+                
+                {% with aircraft=aircrafts_for_flights|get_item:flight_data.id %}
+                    {% if aircraft %}
+                        <div class="summary-item">
+                            <strong>Aircraft Name:</strong>
+                            <span>{{ aircraft.name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Location:</strong>
+                            <span>{{ aircraft.locate }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Country:</strong>
+                            <span>{{ aircraft.country }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Total Seats:</strong>
+                            <span>{{ aircraft.total_seats }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Region:</strong>
+                            <span>{{ aircraft.region }}</span>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                <div class="summary-item">
+                    <strong>Selected Seats:</strong>
+                    <span id="selectedSeats-{{ flight_data.id }}"></span>
+                </div>
+            </div>
+            <div class="aircraft">
+                {% with seats=flights_seats|get_item:flight_data.id %}
+                    {% if seats %}
+                        {% for row in seats|groupby:6 %}
+                            <div class="row">
+                                {% for seat in row %}
+                                    {% if forloop.counter == 4 %}
+                                        <div class="aisle"></div>
+                                    {% endif %}
+                                    <div class="seat {% if seat.is_booked %}booked{% endif %}" 
+                                         data-seat-number="{{ seat.seat_number }}"
+                                         data-flight-id="{{ flight_data.id }}"
+                                         {% if not seat.is_booked %}onclick="toggleSeat(this)"{% endif %}>
+                                        {{ seat.seat_number }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% csrf_token %}
+<script>
+function toggleSeat(seatElement) {
+    const humans = parseInt(document.querySelector('[onclick="chooseForMe()"]').dataset.humans);
+    const currentlySelected = document.querySelectorAll('.seat.selected').length;
+
+    if (!seatElement.classList.contains('selected') && currentlySelected >= humans) {
+        alert(`You can't select more than ${humans} seats.`);
+        return;
+    }
+
+    seatElement.classList.toggle('selected');
+    updateSelectedSeats(seatElement.dataset.flightId);
+}
+
+function updateSelectedSeats(flightId) {
+    const selectedSeats = Array.from(document.querySelectorAll(`.seat.selected[data-flight-id="${flightId}"]`))
+        .map(seat => seat.dataset.seatNumber)
+        .join(', ');
+    document.getElementById(`selectedSeats-${flightId}`).textContent = selectedSeats || 'None';
+}
+
+function goBack() {
+    window.history.back();
+}
+
+function selectTheseSeats() {
+    const flightSummaries = document.querySelectorAll('.flight-summary');
+    const selectedSeats = {};
+    const flightData = {};
+    const humans = parseInt(document.querySelector('[onclick="chooseForMe()"]').dataset.humans);
+    const totalSelected = document.querySelectorAll('.seat.selected').length;
+
+    if (totalSelected !== humans) {
+        alert(`Please select exactly ${humans} seats before proceeding.`);
+        return;
+    }
+
+    flightSummaries.forEach(summary => {
+        const flightId = summary.querySelector('h3').textContent.split(' ').pop();
+        const departureEl = summary.querySelector('.summary-item:nth-child(2) span');
+        const arrivalEl = summary.querySelector('.summary-item:nth-child(3) span');
+        const departureDateEl = summary.querySelector('.summary-item:nth-child(4) span');
+        const aircraftEl = summary.querySelector('.summary-item:nth-child(5) span');
+
+        flightData[flightId] = {
+            departure: departureEl.textContent,
+            arrival: arrivalEl.textContent,
+            departureDate: departureDateEl.textContent,
+            aircraft: aircraftEl.textContent,
+        };
+
+        const seats = document.querySelectorAll(`.seat.selected[data-flight-id="${flightId}"]`);
+        selectedSeats[flightId] = Array.from(seats).map(seat => seat.dataset.seatNumber);
+    });
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "process_selected_seats" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            selectedSeats: selectedSeats,
+            flightData: flightData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert('There was an error processing your selection. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An unexpected error occurred. Please try again.');
+    });
+}
+
+function chooseForMe() {
+    const humans = parseInt(document.querySelector('[onclick="chooseForMe()"]').dataset.humans);
+    const flightContainers = document.querySelectorAll('.flight-container');
+    let totalSeatsSelected = 0;
+
+    // First, unselect all previously selected seats
+    document.querySelectorAll('.seat.selected').forEach(seat => {
+        seat.classList.remove('selected');
+    });
+
+    flightContainers.forEach(container => {
+        const availableSeats = Array.from(container.querySelectorAll('.seat:not(.booked)'));
+        const flightId = container.querySelector('.seat').dataset.flightId;
+        const seatsToSelect = Math.min(humans - totalSeatsSelected, availableSeats.length);
+
+        for (let i = 0; i < seatsToSelect; i++) {
+            const randomIndex = Math.floor(Math.random() * availableSeats.length);
+            const selectedSeat = availableSeats.splice(randomIndex, 1)[0];
+            selectedSeat.classList.add('selected');
+            totalSeatsSelected++;
+        }
+
+        updateSelectedSeats(flightId);
+
+        if (totalSeatsSelected >= humans) {
+            return;
+        }
+    });
+
+    if (totalSeatsSelected < humans) {
+        alert(`Only ${totalSeatsSelected} seats could be selected. There are not enough available seats for ${humans} passengers.`);
+    }
+}
+</script>
+{% endblock %}

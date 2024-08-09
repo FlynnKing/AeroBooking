@@ -1,0 +1,68 @@
+{% extends 'sito_gestione_voli/common.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  
+ .form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #1e1e1e;
+  padding: 20px;
+  border: 1px solid #3d3c3c;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  font-size: 20px;
+  margin: auto; /* Centra orizzontalmente */
+  max-width: 400px; /* Limita la larghezza */
+}
+
+.form input {
+  height: 35px;
+  outline: none;
+  border: 2px solid orange;
+  background: transparent;
+  padding: 20px 10px;
+  border-radius: 5px;
+  transition: .5s;
+  color: white;
+  font-size: 20px;
+}
+
+.form input:focus {
+  background: orange;
+}
+
+.form button {
+  width: 100%;
+  color: white;
+  transition: .5s;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  height: 45px;
+  border-radius: 5px;
+  background: orange;
+  align-self: flex-end;
+}
+    
+</style>
+<div class="container-fluid pt-5 row text-center">
+  <form class="col-12 col-md-6 form" method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <h2>Login</h2>
+      {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+          </div>
+      {% endif %}
+      {% for field in form %}
+          {{ field|add_class:"input" }}
+      {% endfor %}
+      <button type="submit">Login</button>
+  </form>
+</div>
+
+{% endblock %}

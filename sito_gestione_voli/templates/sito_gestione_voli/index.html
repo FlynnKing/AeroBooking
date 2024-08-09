@@ -1,0 +1,332 @@
+{% extends 'sito_gestione_voli/common.html' %}
+{% load widget_tweaks %}
+{% block content %}
+      <div class="container">
+        <div class="card mt-5">
+          <!-----------/ Form per la ricerca del volo /----------->
+          <form class="needs-validation" novalidate method="POST" action="">
+            {% csrf_token %} 
+
+          <div class="card-body row m-1 bg-opacity-10">
+            <div class="row">
+              <div class="form-check col">
+                <input id="oneWay" name="round_trip" onclick="clickEvent()" value="one way" class="form-check-input" type="radio" required checked>
+                <label class="form-check-label">One way</label>
+              </div>
+              <div class="form-check col">
+                <input id="roundTrip" name="round_trip" onclick="clickEvent()" value="round trip" class="form-check-input" type="radio" required>
+                <label class="form-check-label">Round trip</label>
+              </div>
+            </div>
+            <div class="col">
+              <p>Departure</p>
+              {% render_field PreForm.departure class="form-control" name='departure' list="airports" %} 
+              <datalist id="airports">
+                {% for i in all_airports %}
+                <option value="{{i.name}}">{{i}}</option>
+                {% endfor %}
+              </datalist>
+            </div>
+            <div class="col">
+              <p>Arrival</p>
+              {% render_field PreForm.arrival class="form-control" name='arrival' list="airports" %}
+              <datalist id="airports">
+                {% for i in all_airports %}
+                <option type="text" class="dropdown-item" value="{{i.name}}">{{i}}</option>
+                {% endfor %}
+              </datalist>
+            </div>
+            <div class="row" style="margin: 0; padding:0;">
+              <div class="col">
+                <p style="padding-top: 30px;" id="RT0">Return Departure</p>
+                {% render_field PreFormAR.return_departure class="form-control" name='return_departure' id="RT1" %} 
+                <datalist id="airports">
+                  {% for i in all_airports %}
+                  <option class="dropdown-item">{{i.name}}</option>
+                  {% endfor %}
+                </datalist>
+              </div>
+              <div class="col">
+                <p style="padding-top: 30px;" id="RT2">Return Arrival</p>
+                {% render_field PreFormAR.return_arrival class="form-control" name='return_arrival' list="airports" id="RT3" %}
+                <datalist id="airports">
+                  {% for i in all_airports %}
+                  <option type="text" class="dropdown-item" value="{{i.name}}">{{i.name}}</option>
+                  {% endfor %}
+                </datalist>
+              </div> 
+            </div>
+            <div class="d-flex justify-content-start">
+              <div class="" style="margin-top:1.3rem; margin-right: 20px;">Departure Date: </div>
+              <div class="" style="margin-top:1rem; margin-right: 100px;">
+                <input name="departure_date" id="departure_date" class="form-control col" type="date" required>
+              </div>
+              
+              <div class="" style="margin-top: 1rem;">
+                <a style="margin-right: 0px;">Infants:</a> 
+                <button type="button" class="btn btn-secondary" onclick="Increase('infants')">+</button>
+                <input name="infants" id="infants" type="number" value="0" style="width: 2rem; height: 2rem;" min="0" required></input>
+                <button type="button" class="btn btn-secondary" onclick="Decrease('infants')">-</button>
+              </div>
+              <div class="" style="margin-top: 1rem;">
+                  <a>Children:</a> 
+                  <button type="button" class="btn btn-secondary" onclick="Increase('children')">+</button>
+                  <input name="children" id="children" type="number" value="0" style="width: 2rem; height: 2rem;" min="0" required>
+                  <button type="button" class="btn btn-secondary" onclick="Decrease('children')">-</button>
+              </div>
+              <div class="" style="margin-top: 1rem;">
+                  <a style="margin-right: 0px;">Adults:</a> 
+                  <button type="button" class="btn btn-secondary" onclick="Increase('adults')">+</button>
+                  <input name="adults" id="adults" type="number" value="1" style="width: 2rem; height: 2rem;" min="1" required></input> 
+                  <button type="button" class="btn btn-secondary" onclick="Decrease('adults')">-</button>
+              </div>
+            
+            </div>
+            <div class="d-flex justify-content-start">
+              <div class="" style="margin-top:1.3rem; margin-right: 20px;" id="RT4">Return Date: </div>
+              <div class="" style="margin-top:1rem; margin-right: 100px;" id="RT5">
+                <input name="return_date" id="return_date" class="form-control needs-validation" type="date" required>
+              </div>      
+              <div id="adjust"></div>       
+              <a style="color: darkgray; margin-right: 100px; margin-left: 90px;">0 to 2 years</a>
+              <a style="color: darkgray; margin-right: 65px;">3 to 12 years</a>
+              <a style="color: darkgray;">12 years and above</a>
+            </div>
+            <button class="mt-4 btn btn-warning col" onclick="all_Fly()" type="submit">Search Flights</button>
+          </div>
+        </form>
+        <form method="POST" action="summary"> 
+          {% csrf_token %}
+          <div>
+            {% if foundReturnFlights != "[]" or foundDepartureFlights != "[]" %}
+            <table class="table">
+              <script> c=0; </script>
+              {% if foundDepartureFlights != "[]" %}
+              <thead>
+                <h3 class="text-center">Departure Flights</h3>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Departure</th>
+                  <th scope="col">Arrival</th>
+                  <th scope="col">Flight Date</th>
+                  <th scope="col">Checked</th>
+                </tr>
+              </thead>
+              <script> c=0; </script>
+              <tbody class="table-group-divider">
+                {% for i in foundDepartureFlights %}
+                <tr>
+                  <th scope="row">{{i.id}}</th>
+                  <td>{{ i.departure }}</td>
+                  <td>{{ i.arrival }}</td>
+                  <td>{{ i.departure_date }}</td>
+                  <td><input class="form-check-input" name="{{ i.id }}" onclick="Checked()" type="checkbox" value="{{ i.id }}" id="understand"></td>
+                </tr>
+                <script>
+                  document.getElementById('understand').id = c;
+                  c=c+1;
+                </script>
+                {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <table class="table">
+              {% if foundReturnFlights != "[]" %}
+              <thead>
+                <h3 class="text-center">Return Flights</h3>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Departure</th>
+                  <th scope="col">Arrival</th>
+                  <th scope="col">Flight Date</th>
+                  <th scope="col">Checked</th>
+                </tr>
+                </thead>
+                
+                <tbody class="table-group-divider">
+                  {% for i in foundReturnFlights %}
+                  <tr>
+                    <th scope="row">{{i.id}}</th>
+                    <td>{{i.departure}}</td>
+                    <td>{{i.arrival}}</td>
+                    <td>{{i.departure_date}}</td>
+                    <td><input class="form-check-input" name="{{i.id}}" onclick="Checked()" type="checkbox" value="{{i.id}}" id="understand"></td>
+                  </tr>
+                  <script>
+                    document.getElementById('understand').id = c
+                    c=c+1;
+                  </script>
+                  {% endfor %}
+                  {% endif %}
+                </tbody>
+                </table>
+                <button id="buttonSelectFlights" class="mt-4 btn btn-warning col-sm-11 m-3" type="submit">Selected Flights</button>
+                {% endif %}
+                {% if foundReturnFlights == "[]" and foundDepartureFlights == "[]" %}
+                <h3 class="p-3 text-center">No flights found</h3>
+                <script>
+                  if (document.getElementById('oneWay').checked==true){
+                    document.getElementById('RT0').style.display = "none";
+                    document.getElementById('RT1').style.display = "none"; // Return Departure
+                    document.getElementById('RT1').disabled = true;
+                    document.getElementById('RT2').style.display = "none";
+                    document.getElementById('RT3').style.display = "none"; // Return Arrival
+                    document.getElementById('RT3').disabled = true;
+                    document.getElementById('return_date').disabled = true;
+                    document.getElementById('RT4').style.display = "none";
+                    document.getElementById('RT5').style.display = "none";
+                    document.getElementById('adjust').style = "margin-top:1rem; margin-right: 445px;";
+                  }
+                </script>
+                {% endif %}
+                </div>
+                </form>
+                </div>  
+                </div>
+                
+                <script>
+                function all_Fly(){
+                  document.getElementsByName('show_available_flights').style.display = "";
+                }
+                
+                function Checked(){
+                  for (i = 0; i <= c; i++) {
+                    console.log(i)
+                    if (document.getElementById(i).checked == true)
+                    {
+                      a = document.getElementById('buttonSelectFlights').disabled = false
+                      return a
+                    }
+                    else {
+                      a = document.getElementById('buttonSelectFlights').disabled = true
+                    }
+                  }
+                }
+                document.getElementById('buttonSelectFlights').disabled = true
+                
+                //---------------------/ Start form graphic functionality /---------------------//
+                
+                //---------------------/ Start Date form /---------------------//
+                document.getElementById('departure_date').min = new Date().toISOString().split("T")[0];
+                document.getElementById('return_date').min = new Date().toISOString().split("T")[0];
+                
+                function setDateLimits(){
+                  document.getElementById('departure_date').max = document.getElementById('return_date').value;
+                }
+                function setReturnDateLimits(){
+                  document.getElementById('return_date').min = document.getElementById('departure_date').value;
+                }
+                //---------------------/ End Date form /---------------------//
+                
+                //---------------------/ Start passenger quantity /---------------------//
+                function Increase(user){
+                  document.getElementById(user).value = document.getElementById(user).valueAsNumber + 1;
+                }
+                function Decrease(user){
+                  if (document.getElementById(user).value > 0){
+                    document.getElementById(user).value -= 1;
+                  }
+                }
+                //---------------------/ End passenger quantity /---------------------//
+                
+                //---------------------/ Start form validation /---------------------//
+                (function() {
+                  'use strict';
+                  window.addEventListener('load', function() {
+                    var forms = document.getElementsByClassName('needs-validation');
+                    var validation = Array.prototype.filter.call(forms, function(form) {
+                      form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                      }, false);
+                    });
+                  }, false);
+                })();
+                //---------------------/ End form validation /---------------------//
+                
+                //---------------------/ Start disable for oneWay and roundTrip /---------------------/
+                if (document.getElementById('oneWay').checked==true){
+                  document.getElementById('RT0').style.display = "none";
+                  document.getElementById('RT1').style.display = "none"; // Return Departure
+                  document.getElementById('RT1').disabled = true;
+                  document.getElementById('RT2').style.display = "none";
+                  document.getElementById('RT3').style.display = "none"; // Return Arrival
+                  document.getElementById('RT3').disabled = true;
+                  document.getElementById('return_date').disabled = true;
+                  document.getElementById('RT4').style.display = "none";
+                  document.getElementById('RT5').style.display = "none";
+                  document.getElementById('adjust').style = "margin-top:1rem; margin-right: 445px;";
+                }
+                function clickEvent() {
+                  if (document.getElementById('oneWay').checked==true){
+                    document.getElementById('RT0').style.display = "none";
+                    document.getElementById('RT1').style.display = "none"; // Return Departure
+                    document.getElementById('RT1').disabled = true;
+                    document.getElementById('RT2').style.display = "none";
+                    document.getElementById('RT3').style.display = "none"; // Return Arrival
+                    document.getElementById('RT3').disabled = true;
+                    document.getElementById('return_date').disabled = true;
+                    document.getElementById('RT4').style.display = "none";
+                    document.getElementById('RT5').style.display = "none";
+                    document.getElementById('adjust').style = "margin-top:1rem; margin-right: 445px;";
+                  }
+                  else if (document.getElementById('roundTrip').checked==true){
+                    document.getElementById('RT0').style.display = "";
+                    document.getElementById('RT1').style.display = "";
+                    document.getElementById('RT1').disabled = false;
+                    document.getElementById('RT2').style.display = "";
+                    document.getElementById('RT3').style.display = "";
+                    document.getElementById('RT3').disabled = false;
+                    document.getElementById('return_date').disabled = false;
+                    document.getElementById('RT4').style.display = "";
+                    document.getElementById('RT5').style.display = "";
+                    document.getElementById('adjust').style = "";
+                  }
+                }
+                //---------------------/ End disable for oneWay and roundTrip /---------------------//
+                </script>
+                <script>
+                  /**
+                   * This section of the script is responsible for handling the increment and decrement
+                   * of passenger counts (infants, children, and adults) while ensuring the following:
+                   * 1. At least one adult is selected.
+                   * 2. The total number of passengers does not exceed 10.
+                   */
+                  
+                  function Increase(type) {
+                      var infants = parseInt(document.getElementById('infants').value);
+                      var children = parseInt(document.getElementById('children').value);
+                      var adults = parseInt(document.getElementById('adults').value);
+                      
+                      var total = infants + children + adults;
+                  
+                      if (total < 10) {
+                          var input = document.getElementById(type);
+                          input.value = parseInt(input.value) + 1;
+                      } else {
+                          alert("The total number of passengers cannot exceed 10.");
+                      }
+                  }
+                  
+                  function Decrease(type) {
+                      var input = document.getElementById(type);
+                      var value = parseInt(input.value);
+                  
+                      if (type === 'adults' && value > 1) {
+                          input.value = value - 1;
+                      } else if (type !== 'adults' && value > 0) {
+                          input.value = value - 1;
+                      } else if (type === 'adults' && value <= 1) {
+                          alert("At least one adult must be present.");
+                      }
+                  }
+                  </script>
+                  
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+                {% endblock %}
+                

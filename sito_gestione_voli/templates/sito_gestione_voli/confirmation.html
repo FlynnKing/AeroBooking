@@ -1,0 +1,39 @@
+{% extends 'sito_gestione_voli/common.html' %}
+
+{% block content %}
+{% load custom_filters %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Booking Confirmation</h2>
+                    <p class="card-text text-center">{{ message }}</p>
+                    
+                    {% for flight_id, flight_info in flight_data.items %}
+                    <div class="flight-info mt-4">
+                        <h3>Flight {{ flight_id }}</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Departure:</strong> {{ flight_info.departure }}</li>
+                            <li class="list-group-item"><strong>Arrival:</strong> {{ flight_info.arrival }}</li>
+                            <li class="list-group-item"><strong>Departure Date:</strong> {{ flight_info.departureDate }}</li>
+                            <li class="list-group-item"><strong>Aircraft:</strong> {{ flight_info.aircraft }}</li>
+                            <li class="list-group-item">
+                                <strong>Selected Seats:</strong> 
+                                {% for seat in selected_seats|get_item:flight_id %}
+                                    {{ seat }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'flys' %}" class="btn btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
